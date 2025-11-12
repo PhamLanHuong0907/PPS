@@ -1,5 +1,8 @@
 import sympy # type: ignore
-from thuattoanhorner import horner_k_derivative
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
+from thuattoanhorner_daoham import horner_k_derivative
 
 # --- Ví dụ 1: Input hoàn toàn là số ---
 # P(x) = 3x^4 - 2x^2 + 5x - 1

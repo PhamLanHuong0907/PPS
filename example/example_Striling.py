@@ -1,4 +1,7 @@
 import sympy # type: ignore
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
 from stirling_interpolation import stirling_polynomial # type: ignore
 
 # --- Ví dụ 1: Input là số ---

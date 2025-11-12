@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
 from pplapdon import fixed_point_iteration # type: ignore
 
 # --- Ví dụ 1: Input là số (Tìm nghiệm x = cos(x)) ---
