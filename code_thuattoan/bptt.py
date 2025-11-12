@@ -1,193 +1,225 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # ==============================================================================
-# a) THUẬT TOÁN BÌNH PHƯƠNG TỐI THIỂU TỔNG QUÁT
-# ==============================================================================
-def least_squares_fit(x_data, y_data, list_of_phi_functions):
-    """
-    Thực hiện thuật toán bình phương tối thiểu tổng quát để tìm hàm thực nghiệm.
-
-    Args:
-        x_data (array-like): Mảng hoặc danh sách chứa các giá trị x của dữ liệu.
-        y_data (array-like): Mảng hoặc danh sách chứa các giá trị y của dữ liệu.
-        list_of_phi_functions (list): Một danh sách các hàm cơ sở phi(x) (dạng lambda hoặc function).
-
-    Returns:
-        tuple: (coefficients, mean_squared_error)
-               - coefficients: Mảng NumPy chứa các hệ số [a1, a2, ..., am] tìm được.
-               - mean_squared_error: Sai số trung bình phương của hàm thực nghiệm.
-    """
-    # Chuyển input thành mảng NumPy để dễ dàng tính toán
-    x_data = np.array(x_data)
-    y_data = np.array(y_data)
-
-    n = len(x_data)  # Số điểm dữ liệu
-    m = len(list_of_phi_functions)  # Số hàm cơ sở
-
-    # Bước 2: Kiểm tra điều kiện của input
-    if n < m:
-        raise ValueError("Số điểm dữ liệu (n) phải lớn hơn hoặc bằng số hàm cơ sở (m).")
-
-    # Bước 4.1: Lập ma trận thiết kế Phi
-    phi_matrix = np.zeros((n, m))
-    for j, phi_func in enumerate(list_of_phi_functions):
-        phi_matrix[:, j] = phi_func(x_data)
-
-    # Bước 4.3: Thiết lập hệ phương trình tuyến tính chuẩn
-    # M = Phi^T * Phi
-    M = phi_matrix.T @ phi_matrix
-    # b = Phi^T * y
-    b = phi_matrix.T @ y_data
-
-    # Bước 4.4: Giải hệ Ma = b để tìm vector hệ số a
-    try:
-        # Sử dụng numpy.linalg.solve để giải hệ phương trình hiệu quả và chính xác
-        coefficients = np.linalg.solve(M, b)
-    except np.linalg.LinAlgError:
-        raise np.linalg.LinAlgError("Ma trận M không khả nghịch. Các hàm cơ sở có thể phụ thuộc tuyến tính.")
-
-    # Bước 4.5: Tính sai số trung bình phương
-    y_predicted = phi_matrix @ coefficients
-    error_sum_of_squares = np.sum((y_data - y_predicted)**2)
-    mean_squared_error = np.sqrt(error_sum_of_squares / n)
-
-    # Bước 5: Trả về output
-    return coefficients, mean_squared_error
-
-# ==============================================================================
-# b) THUẬT TOÁN CHO CÁC DẠNG HÀM ĐẶC BIỆT
+# 1. HÀM LÕI: GIẢI BÀI TOÁN TỔNG QUÁT VÀ IN MA TRẬN
 # ==============================================================================
 
-# b.1. Thuật toán cho hàm y = a * exp(b1*phi1(x) + b2*phi2(x))
-def fit_exponential(x_data, y_data, phi1, phi2):
+def least_squares_detailed(x, y, basis_funcs, case_name=""):
     """
-    Tìm các hệ số a, b1, b2 cho hàm y = a * exp(b1*phi1(x) + b2*phi2(x)).
-    Đây là hàm bao (wrapper) sử dụng thuật toán tổng quát sau khi tuyến tính hóa.
+    Hàm lõi để khớp mô hình tổng quát và in ra các ma trận trung gian.
+    Trả về một dictionary chứa hệ số, y dự đoán, và sai số.
     """
-    # Bước 2: Kiểm tra điều kiện y > 0
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    # 1. Xây dựng ma trận theta (Φ) từ các hàm cơ sở
+    theta = np.column_stack([[f(xi) for xi in x] for f in basis_funcs])
+    
+    # 2. Tính toán các ma trận trung gian
+    theta_T = theta.T
+    m_matrix = theta_T @ theta
+    b_vector = theta_T @ y
+
+    # 3. In các ma trận ra màn hình
+    np.set_printoptions(precision=4, suppress=True)
+    print(f"\n===== CÁC MA TRẬN TRUNG GIAN ({case_name}) =====")
+    print("Ma trận theta (Φ):\n", theta)
+    print("\nMa trận m = Φᵀ * Φ:\n", m_matrix)
+    print("\nVector b = Φᵀ * Y:\n", b_vector)
+    print("=" * (45 + len(case_name)))
+
+    # 4. Giải hệ phương trình để tìm các hệ số
+    coeffs, *_ = np.linalg.lstsq(theta, y, rcond=None)
+    
+    # 5. Tính toán kết quả
+    y_pred = theta @ coeffs
+    rmse = np.sqrt(np.mean((np.asarray(y) - y_pred) ** 2))
+    
+    return {"coeffs": coeffs, "y_pred": y_pred, "rmse": rmse}
+
+# ==============================================================================
+# 2. CÁC HÀM CHUYÊN BIỆT (GỌI ĐẾN HÀM LÕI)
+# ==============================================================================
+
+# 2.1. Hàm cho mô hình y = a * exp(b1*phi1(x) + b2*phi2(x))
+def fit_exponential_detailed(x_data, y_data, phi1, phi2, case_name="Hàm Mũ"):
+    """
+    Tìm hệ số cho hàm mũ và in ma trận của bài toán đã tuyến tính hóa.
+    """
+    print(f"--- Bắt đầu xử lý {case_name} ---")
+    
+    # Tuyến tính hóa: ln(y) = ln(a) + b1*phi1(x) + b2*phi2(x)
+    # Đặt Y = ln(y), a0 = ln(a). Y = a0*1 + b1*phi1(x) + b2*phi2(x)
     if not np.all(np.array(y_data) > 0):
-        raise ValueError("Tất cả các giá trị y phải lớn hơn 0 để có thể lấy logarit.")
-
-    # Bước 4.1: Tuyến tính hóa
-    # ln(y) = ln(a) + b1*phi1(x) + b2*phi2(x)
-    # Đặt Y = ln(y), a0 = ln(a)
+        raise ValueError("Lỗi hàm mũ: Tất cả giá trị y phải > 0 để lấy logarit.")
+    
     Y_data = np.log(y_data)
+    basis_funcs_linear = [lambda x: 1, phi1, phi2]
     
-    # Bước 4.2: Áp dụng thuật toán tổng quát với các hàm cơ sở {1, phi1, phi2}
-    # Hàm `lambda x: np.ones_like(x)` tạo ra một vector toàn số 1, tương ứng với hệ số tự do a0
-    basis_functions = [lambda x: np.ones_like(x), phi1, phi2]
+    # Gọi hàm lõi cho bài toán đã tuyến tính hóa (với Y = log(y))
+    results_linear = least_squares_detailed(x_data, Y_data, basis_funcs_linear, case_name)
+    a0, b1, b2 = results_linear["coeffs"]
     
-    # Gọi hàm tổng quát
-    coeffs_linear, _ = least_squares_fit(x_data, Y_data, basis_functions)
-    
-    a0, b1, b2 = coeffs_linear
-    
-    # Bước 4.3: Suy ngược lại các hệ số ban đầu
+    # Suy ngược lại hệ số gốc 'a'
     a = np.exp(a0)
     
-    # Bước 5: Trả về output
-    return a, b1, b2
+    # Tính lại y_pred và sai số trên thang đo gốc
+    y_pred_original = a * np.exp(b1 * phi1(x_data) + b2 * phi2(x_data))
+    rmse_original = np.sqrt(np.mean((y_data - y_pred_original) ** 2))
+    
+    return {"a": a, "b1": b1, "b2": b2, "rmse": rmse_original}
 
-# b.2. Thuật toán cho hàm y = a * x^b
-def fit_power_law(x_data, y_data):
+# 2.2. Hàm cho mô hình y = a * x^b
+def fit_power_law_detailed(x_data, y_data, case_name="Hàm Lũy Thừa", min_positive=1e-9):
     """
-    Tìm các hệ số a, b cho hàm y = a * x^b.
-    Đây là hàm bao (wrapper) sử dụng thuật toán tổng quát sau khi tuyến tính hóa.
+    Tìm hệ số cho hàm lũy thừa, tự động TỊNH TIẾN dữ liệu y nếu có giá trị không dương.
+    In ma trận của bài toán đã tuyến tính hóa.
     """
-    # Bước 2: Kiểm tra điều kiện x > 0 và y > 0
-    if not (np.all(np.array(x_data) > 0) and np.all(np.array(y_data) > 0)):
-        raise ValueError("Tất cả giá trị x và y phải lớn hơn 0 để có thể lấy logarit.")
+    print(f"--- Bắt đầu xử lý {case_name} ---")
+    x = np.asarray(x_data, dtype=float)
+    y = np.asarray(y_data, dtype=float)
 
-    # Bước 4.1: Tuyến tính hóa
-    # ln(y) = ln(a) + b*ln(x)
-    # Đặt Y = ln(y), X = ln(x), A = ln(a). Ta có Y = A + b*X
-    X_data = np.log(x_data)
-    Y_data = np.log(y_data)
+    # Bước 1: Kiểm tra và tịnh tiến dữ liệu nếu cần
+    shift_y = 0.0
+    y_processed = y
+
+    # Chỉ tịnh tiến y nếu có giá trị y <= 0
+    if np.any(y <= 0):
+        # Lượng tịnh tiến = giá trị nhỏ nhất của y (sẽ là số âm) + một số rất nhỏ
+        shift_y = -np.min(y) + min_positive
+        y_processed = y + shift_y
+        print(f"(!) Cảnh báo: Dữ liệu y có giá trị không dương. Tự động tịnh tiến y lên {shift_y:.4f} đơn vị.")
     
-    # Bước 4.2: Áp dụng thuật toán tổng quát với hàm cơ sở {1, X}
-    basis_functions = [lambda x: np.ones_like(x), lambda x: x] # {1, X}
+    # Kiểm tra x (thường x đã > 0, nhưng để an toàn)
+    if np.any(x <= 0):
+        raise ValueError(f"Lỗi {case_name}: Tất cả giá trị x phải > 0.")
+
+    # Bước 2: Tuyến tính hóa trên dữ liệu đã được xử lý
+    # log(y_processed) = b*log(x) + log(a)
+    log_x = np.log(x)
+    log_y = np.log(y_processed)
+    basis_funcs_linear = [lambda X: 1, lambda X: X]
     
-    # Gọi hàm tổng quát trên dữ liệu đã biến đổi
-    coeffs_linear, _ = least_squares_fit(X_data, Y_data, basis_functions)
+    # Bước 3: Gọi hàm lõi để giải và in ma trận
+    results_linear = least_squares_detailed(log_x, log_y, basis_funcs_linear, case_name)
+    a0, b = results_linear["coeffs"]
     
-    A, b = coeffs_linear
-    
-    # Bước 4.3: Suy ngược hệ số
-    a = np.exp(A)
-    
-    # Bước 5: Trả về output
-    return a, b
-# Đọc dữ liệu trên file csv
-def load_data_from_csv(filepath, x_col_idx, y_col_idx):
-    """
-    Đọc và làm sạch dữ liệu từ các cột cụ thể trong file CSV.
-    """
-    # Đọc file, không dùng dòng đầu tiên làm header
-    df = pd.read_csv(filepath, header=None)
-    # Lấy 2 cột dữ liệu theo chỉ số
-    data = df.iloc[1:, [x_col_idx, y_col_idx]] # Bắt đầu từ hàng 1 để bỏ qua tiêu đề
-    # Loại bỏ các hàng có giá trị rỗng
-    data = data.dropna()
-    # Chuyển thành số
-    data = data.astype(float)
-    # Trả về 2 mảng numpy
-    return data.iloc[:, 0].to_numpy(), data.iloc[:, 1].to_numpy()
+    # Bước 4: Suy ngược lại hệ số gốc 'a'
+    a = np.exp(a0)
+
+    # Bước 5: Tính lại y_pred và sai số trên thang đo GỐC
+    # Hàm thực nghiệm sẽ có dạng g(x) = a * x^b - shift_y
+    y_pred_original = a * (x**b) - shift_y
+    rmse_original = np.sqrt(np.mean((y_data - y_pred_original)**2))
+
+    # Trả về các giá trị bao gồm cả lượng đã tịnh tiến
+    return {"a": a, "b": b, "shift_y": shift_y, "rmse": rmse_original}
+
 # ==============================================================================
-# KHỐI LỆNH CHÍNH ĐỂ CHẠY VÍ DỤ
+# 3. PHẦN THỰC THI CHÍNH (ĐÃ SỬA LỖI)
 # ==============================================================================
 
 if __name__ == '__main__':
-    file_path = 'data Câu 23.csv'
+    try:
+        # ---- SỬA LỖI ĐỌC DỮ LIỆU ----
+        # 1. Sửa đường dẫn thành 'data.csv'
+        # 2. Thêm header=None để pandas không đọc dòng đầu làm tiêu đề
+        # 3. Thêm encoding='utf-8' để đọc đúng tiếng Việt
+        df = pd.read_csv('File csv/data.csv', header=None, encoding='utf-8')
+        print("✓ Đã đọc dữ liệu từ 'data.csv' thành công.\n")
 
-    # --- Câu a) y = ax + b/x ---
-    print("--- Câu a) Xác định hàm thực nghiệm dạng y = ax + b/x ---")
-    x_a, y_a = load_data_from_csv(file_path, x_col_idx=1, y_col_idx=2)
-    phi_a = [
-        lambda x: x,        # phi1(x) = x
-        lambda x: 1/x       # phi2(x) = 1/x
-    ]
-    coeffs_a, error_a = least_squares_fit(x_a, y_a, phi_a)
-    a, b = coeffs_a
-    print(f"Kết quả: a = {a:.4f}, b = {b:.4f}")
-    print(f"Hàm thực nghiệm: y = {a:.4f}x + {b:.4f}/x")
-    print(f"Sai số trung bình phương: {error_a:.4f}\n")
+        # ---- Xử lý dữ liệu cho từng câu bằng VỊ TRÍ CỘT ----
+        # .iloc[1:, CỘT] -> Lấy từ dòng thứ hai trở đi, ở cột có chỉ số CỘT
+        # .astype(float) -> Chuyển dữ liệu sang dạng số để tính toán
+        
+        # Dữ liệu Câu a: cột 1 (x) và cột 2 (y)
+        x_a = df.iloc[1:, 1].astype(float)
+        y_a = df.iloc[1:, 2].astype(float)
 
-    # --- Câu b) y = ax^2 + b*cos(x) + c ---
-    print("--- Câu b) Xác định hàm thực nghiệm dạng y = ax^2 + b*cos(x) + c ---")
-    x_b, y_b = load_data_from_csv(file_path, x_col_idx=6, y_col_idx=7)
-    phi_b = [
-        lambda x: x**2,         # phi1(x) = x^2
-        lambda x: np.cos(x),    # phi2(x) = cos(x)
-        lambda x: np.ones_like(x) # phi3(x) = 1 (cho hệ số c)
-    ]
-    coeffs_b, error_b = least_squares_fit(x_b, y_b, phi_b)
-    a, b, c = coeffs_b
-    print(f"Kết quả: a = {a:.4f}, b = {b:.4f}, c = {c:.4f}")
-    print(f"Hàm thực nghiệm: y = {a:.4f}x^2 + {b:.4f}cos(x) + {c:.4f}")
-    print(f"Sai số trung bình phương: {error_b:.4f}\n")
+        # Dữ liệu Câu b: cột 6 (x) và cột 7 (y)
+        x_b = df.iloc[1:, 6].astype(float)
+        y_b = df.iloc[1:, 7].astype(float)
+        
+        # Dữ liệu Câu c: cột 11 (x) và cột 12 (y)
+        x_c = df.iloc[1:, 11].astype(float)
+        y_c = df.iloc[1:, 12].astype(float)
+        
+        # Dữ liệu Câu d: cột 16 (x) và cột 17 (y)
+        x_d = df.iloc[1:, 16].astype(float)
+        y_d = df.iloc[1:, 17].astype(float)
 
-    # --- Câu c) y = a * e^(bx + cx^2) ---
-    print("--- Câu c) Xác định hàm thực nghiệm dạng y = a * exp(bx + cx^2) ---")
-    x_c, y_c = load_data_from_csv(file_path, x_col_idx=11, y_col_idx=12)
-    
-    # Tuyến tính hóa: ln(y) = ln(a) + bx + cx^2
-    Y_c = np.log(y_c)
-    phi_c_linear = [
-        lambda x: np.ones_like(x), # Cho ln(a)
-        lambda x: x,               # Cho b
-        lambda x: x**2             # Cho c
-    ]
-    coeffs_c_linear, _ = least_squares_fit(x_c, Y_c, phi_c_linear)
-    A, b, c = coeffs_c_linear
-    a = np.exp(A)
-    print(f"Kết quả: a = {a:.4f}, b = {b:.4f}, c = {c:.4f}")
-    print(f"Hàm thực nghiệm: y = {a:.4f} * exp({b:.4f}x + {c:.4f}x^2)\n")
 
-    # --- Câu d) y = ax^b ---
-    print("--- Câu d) Xác định hàm thực nghiệm dạng y = ax^b ---")
-    x_d, y_d = load_data_from_csv(file_path, x_col_idx=16, y_col_idx=17)
-    # Sử dụng hàm đã viết sẵn
-    a, b = fit_power_law(x_d, y_d)
-    print(f"Kết quả: a = {a:.4f}, b = {b:.4f}")
-    print(f"Hàm thực nghiệm: y = {a:.4f} * x^({b:.4f})")
+        # #######################################################################
+        # --- TRƯỜNG HỢP a: y = ax + b/x (Sử dụng dữ liệu của Câu a) ---
+        # #######################################################################
+        print("--- Bắt đầu xử lý TRƯỜNG HỢP a: y = ax + b/x ---")
+        basis_funcs_a = [lambda x: x, lambda x: 1/x]
+        results_a = least_squares_detailed(x_a, y_a, basis_funcs_a, case_name="Trường hợp a")
+        
+        a_val_a, b_val_a = results_a["coeffs"]
+        sigma_a = results_a["rmse"]
+        print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp a) =====")
+        print(f"  – Các hệ số: a = {a_val_a:.4f}, b = {b_val_a:.4f}")
+        print(f"  – Hàm thực nghiệm g(x) = {a_val_a:.4f}*x + {b_val_a:.4f}/x")
+        print(f"  – Sai số trung bình phương σ = {sigma_a:.4f}")
+        print("="*45, "\n\n")
+
+        # #######################################################################
+        # --- TRƯỜNG HỢP b: y = a + b*cos(x) + c*sin(x) (Sử dụng dữ liệu của Câu b) ---
+        # #######################################################################
+        print("--- Bắt đầu xử lý TRƯỜNG HỢP b: y = a + b*cos(x) + c*sin(x) ---")
+        basis_funcs_b = [lambda x: x*x, lambda x: np.cos(x), lambda x: 1]
+        results_b = least_squares_detailed(x_b, y_b, basis_funcs_b, case_name="Trường hợp b")
+        
+        a_val_b, b_val_b, c_val_b = results_b["coeffs"]
+        sigma_b = results_b["rmse"]
+        print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp b) =====")
+        print(f"  – Các hệ số: a = {a_val_b:.4f}, b = {b_val_b:.4f}, c = {c_val_b:.4f}")
+        print(f"  – Hàm thực nghiệm g(x) = {a_val_b:.4f} + {b_val_b:.4f}*cos(x) + {c_val_b:.4f}*sin(x)")
+        print(f"  – Sai số trung bình phương σ = {sigma_b:.4f}")
+        print("="*45, "\n\n")
+
+        # #######################################################################
+        # --- TRƯỜNG HỢP c: HÀM MŨ y = a * exp(b1*x) (Sử dụng dữ liệu của Câu c) ---
+        # #######################################################################
+        # Ví dụ đơn giản hóa y = a * exp(b1*x), nên phi2(x) = 0
+        phi1_c = lambda x: x
+        phi2_c = lambda x: 0 # Hàm phi2 không dùng đến
+        results_c = fit_exponential_detailed(x_c, y_c, phi1_c, phi2_c, case_name="Trường hợp c - Hàm Mũ")
+
+        a_val_c, b1_val_c, _ = results_c["a"], results_c["b1"], results_c["b2"]
+        sigma_c = results_c["rmse"]
+        print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp c - Hàm Mũ) =====")
+        print(f"  – Các hệ số: a = {a_val_c:.4f}, b1 = {b1_val_c:.4f}")
+        print(f"  – Hàm thực nghiệm g(x) = {a_val_c:.4f} * exp({b1_val_c:.4f}*x)")
+        print(f"  – Sai số trung bình phương σ = {sigma_c:.4f}")
+        print("="*55, "\n\n")
+        
+         # #######################################################################
+        # --- TRƯỜNG HỢP d: HÀM LŨY THỪA y = a * x^b (Sử dụng dữ liệu của Câu d) ---
+        # #######################################################################
+        results_d = fit_power_law_detailed(x_d, y_d, case_name="Trường hợp d - Hàm Lũy Thừa")
+
+        # In kết quả cuối cùng, có hiển thị cả lượng tịnh tiến
+        a_val_d, b_val_d = results_d["a"], results_d["b"]
+        shift_y_d = results_d["shift_y"]
+        sigma_d = results_d["rmse"]
+        
+        print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp d - Hàm Lũy Thừa) =====")
+        print(f"  – Các hệ số (trên dữ liệu tịnh tiến): a = {a_val_d:.4f}, b = {b_val_d:.4f}")
+        
+        if shift_y_d > 0:
+            print(f"  – Dữ liệu y đã được tịnh tiến lên: {shift_y_d:.4f}")
+            print(f"  – Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f}) - {shift_y_d:.4f}")
+        else:
+            print(f"  – Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f})")
+            
+        print(f"  – Sai số trung bình phương σ = {sigma_d:.4f}")
+        print("="*60)
+
+    except FileNotFoundError:
+        print("\nLỖI: Không tìm thấy file 'data.csv'. Vui lòng đảm bảo file tồn tại trong cùng thư mục.")
+    except Exception as e:
+        print(f"\nĐÃ XẢY RA LỖI: {e}")
