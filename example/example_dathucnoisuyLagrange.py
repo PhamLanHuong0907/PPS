@@ -4,10 +4,11 @@ import os
 import sys
 try:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
+    # Đảm bảo bạn đang import file "dathucnoisuyLagrange.py" đã được chỉnh sửa
     from dathucnoisuyLagrange import xay_dung_da_thuc_lagrange
 except ImportError:
-    print("Lỗi: Không tìm thấy file 'thu_vien_lagrange.py'.")
-    print("Hãy đảm bảo 2 file 'thu_vien_lagrange.py' và 'example_lagrange.py' nằm chung thư mục.")
+    print("Lỗi: Không tìm thấy file 'dathucnoisuyLagrange.py'.")
+    print("Hãy đảm bảo 2 file 'dathucnoisuyLagrange.py' và 'example_dathucnoisuyLagrange.py' nằm chung thư mục.")
     exit()
 except ModuleNotFoundError:
     print("Lỗi: Không tìm thấy thư viện 'sympy'.")
@@ -19,27 +20,29 @@ except ModuleNotFoundError:
 def chay_cac_vi_du():
     """
     Hàm chính để chạy các ví dụ ứng dụng.
+    (Hàm xay_dung_da_thuc_lagrange sẽ tự in chi tiết)
     """
     
     # --- Ví dụ 1: Đa thức bậc 2 (Parabol) ---
-    print("\n--- VÍ DỤ 1: Đa thức bậc 2 ---")
+    print("\n--- VÍ DỤ 1: Đa thức bậc 2 (nhưng input là bậc 6) ---")
     # Yêu cầu: Tìm đa thức P(x) đi qua 3 điểm:
     # (0, 1), (1, 4), (2, 9)
-    # Kết quả mong đợi: P(x) = x^2 + 2x + 1
+    # Kết quả mong đợi (cũ): P(x) = x^2 + 2x + 1
     
+    # Dữ liệu gốc trong file của bạn:
     X1 = [0, 1, 2, 3, 6, 7,10]
     Y1 = [1, 4, 9, 12, 14, 21, 31]
     
     print(f"Các mốc X = {X1}")
     print(f"Các giá trị Y = {Y1}")
     
-    # Gọi hàm đã import
+    # Gọi hàm đã import (Hàm sẽ tự in các bước 1-5)
     P_n1, A1 = xay_dung_da_thuc_lagrange(X1, Y1)
     
     if P_n1 is not None:
-        print(f"\nĐa thức P(x) tìm được: {P_n1}")
-        print(f"Các hệ số A (từ bậc cao đến thấp): {A1}")
-        print(f"(Kết quả mong đợi: P(x) = x**2 + 2*x + 1, A = [1, 2, 1])")
+        # Hàm đã tự in kết quả chi tiết
+        print(f"(Hàm đã chạy xong ví dụ 1)")
+        # (Kết quả mong đợi cũ [x**2 + 2*x + 1] không áp dụng cho input này)
 
     # --- Ví dụ 2: Đa thức bậc 1 (Đường thẳng) ---
     print("\n--- VÍ DỤ 2: Đa thức bậc 1 ---")
@@ -53,16 +56,15 @@ def chay_cac_vi_du():
     print(f"Các mốc X = {X2}")
     print(f"Các giá trị Y = {Y2}")
     
-    # Gọi hàm đã import
+    # Gọi hàm đã import (Hàm sẽ tự in các bước 1-5)
     P_n2, A2 = xay_dung_da_thuc_lagrange(X2, Y2)
     
     if P_n2 is not None:
-        print(f"\nĐa thức P(x) tìm được: {P_n2}")
-        print(f"Các hệ số A (từ bậc cao đến thấp): {A2}")
-        print(f"(Kết quả mong đợi: P(x) = 2*x + 1, A = [2, 1])")
+        # Hàm đã tự in kết quả chi tiết, chỉ in dòng kiểm tra
+        print(f"(Kiểm tra: Kết quả mong đợi: P(x) = 2*x + 1, A = [2, 1])")
 
 # --------------------------------------------------------------------
-# Khi bạn chạy file "example_lagrange.py", code bên dưới sẽ được thực thi
+# Khi bạn chạy file "example_dathucnoisuyLagrange.py", code bên dưới sẽ được thực thi
 # --------------------------------------------------------------------
 if __name__ == "__main__":
     print("--- ỨNG DỤNG CHẠY THỬ THUẬT TOÁN LAGRANGE ---")

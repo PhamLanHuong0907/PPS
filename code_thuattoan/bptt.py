@@ -161,9 +161,9 @@ if __name__ == '__main__':
         a_val_a, b_val_a = results_a["coeffs"]
         sigma_a = results_a["rmse"]
         print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp a) =====")
-        print(f"  – Các hệ số: a = {a_val_a:.4f}, b = {b_val_a:.4f}")
-        print(f"  – Hàm thực nghiệm g(x) = {a_val_a:.4f}*x + {b_val_a:.4f}/x")
-        print(f"  – Sai số trung bình phương σ = {sigma_a:.4f}")
+        print(f"   Các hệ số: a = {a_val_a:.4f}, b = {b_val_a:.4f}")
+        print(f"   Hàm thực nghiệm g(x) = {a_val_a:.4f}*x + {b_val_a:.4f}/x")
+        print(f"   Sai số trung bình phương σ = {sigma_a:.4f}")
         print("="*45, "\n\n")
 
         # #######################################################################
@@ -176,9 +176,9 @@ if __name__ == '__main__':
         a_val_b, b_val_b, c_val_b = results_b["coeffs"]
         sigma_b = results_b["rmse"]
         print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp b) =====")
-        print(f"  – Các hệ số: a = {a_val_b:.4f}, b = {b_val_b:.4f}, c = {c_val_b:.4f}")
-        print(f"  – Hàm thực nghiệm g(x) = {a_val_b:.4f} + {b_val_b:.4f}*cos(x) + {c_val_b:.4f}*sin(x)")
-        print(f"  – Sai số trung bình phương σ = {sigma_b:.4f}")
+        print(f"   Các hệ số: a = {a_val_b:.4f}, b = {b_val_b:.4f}, c = {c_val_b:.4f}")
+        print(f"   Hàm thực nghiệm g(x) = {a_val_b:.4f} + {b_val_b:.4f}*cos(x) + {c_val_b:.4f}*sin(x)")
+        print(f"   Sai số trung bình phương σ = {sigma_b:.4f}")
         print("="*45, "\n\n")
 
         # #######################################################################
@@ -192,9 +192,9 @@ if __name__ == '__main__':
         a_val_c, b1_val_c, _ = results_c["a"], results_c["b1"], results_c["b2"]
         sigma_c = results_c["rmse"]
         print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp c - Hàm Mũ) =====")
-        print(f"  – Các hệ số: a = {a_val_c:.4f}, b1 = {b1_val_c:.4f}")
-        print(f"  – Hàm thực nghiệm g(x) = {a_val_c:.4f} * exp({b1_val_c:.4f}*x)")
-        print(f"  – Sai số trung bình phương σ = {sigma_c:.4f}")
+        print(f"   Các hệ số: a = {a_val_c:.4f}, b1 = {b1_val_c:.4f}")
+        print(f"   Hàm thực nghiệm g(x) = {a_val_c:.4f} * exp({b1_val_c:.4f}*x)")
+        print(f"   Sai số trung bình phương σ = {sigma_c:.4f}")
         print("="*55, "\n\n")
         
          # #######################################################################
@@ -208,15 +208,15 @@ if __name__ == '__main__':
         sigma_d = results_d["rmse"]
         
         print(f"\n===== KẾT QUẢ CUỐI CÙNG (Trường hợp d - Hàm Lũy Thừa) =====")
-        print(f"  – Các hệ số (trên dữ liệu tịnh tiến): a = {a_val_d:.4f}, b = {b_val_d:.4f}")
+        print(f"   Các hệ số (trên dữ liệu tịnh tiến): a = {a_val_d:.4f}, b = {b_val_d:.4f}")
         
         if shift_y_d > 0:
-            print(f"  – Dữ liệu y đã được tịnh tiến lên: {shift_y_d:.4f}")
-            print(f"  – Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f}) - {shift_y_d:.4f}")
+            print(f"   Dữ liệu y đã được tịnh tiến lên: {shift_y_d:.4f}")
+            print(f"   Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f}) - {shift_y_d:.4f}")
         else:
-            print(f"  – Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f})")
+            print(f"   Hàm thực nghiệm g(x) = {a_val_d:.4f} * x^({b_val_d:.4f})")
             
-        print(f"  – Sai số trung bình phương σ = {sigma_d:.4f}")
+        print(f"   Sai số trung bình phương σ = {sigma_d:.4f}")
         print("="*60)
 
     except FileNotFoundError:

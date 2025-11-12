@@ -6,6 +6,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
 
 try:
+    # Đảm bảo bạn đang import file "noisuynguoc.py" đã được chỉnh sửa
     from noisuynguoc import inverse_lagrange_polynomial # type: ignore
 except ImportError:
     print("LỖI: Không tìm thấy file 'noisuynguoc.py'.")
@@ -26,13 +27,13 @@ x_data_1 = [1, 2, 3]
 y_data_1 = [1, 8, 27] # (Đơn điệu, Phân biệt)
 y_star_1 = 10 
 
+# Hàm sẽ tự in các bước 1-5
 P_y_1, x_star_1 = inverse_lagrange_polynomial(y_data_1, x_data_1, y_star_1, verbose=VERBOSE_MODE)
 
 if P_y_1 is not None:
     print("\n--- KẾT QUẢ (VÍ DỤ 1) ---")
-    print(f"Đa thức nội suy P(y) = {P_y_1}")
-    print(f"Giá trị x* tại y*=10 là: x* = {x_star_1}")
-    print(f"(Giá trị số: {x_star_1.evalf()})")
+    # (Kết quả P(y) và x* đã được in ở Bước 5)
+    print(f"(Kiểm tra giá trị số: {x_star_1.evalf()})")
 print("=" * 40)
 
 
@@ -44,12 +45,12 @@ x_data_2 = [x1, x2]
 y_data_2 = [y1, y2]
 y_star_2 = y_star
 
+# Hàm sẽ tự in các bước 1-5
 P_y_2, x_star_2 = inverse_lagrange_polynomial(y_data_2, x_data_2, y_star_2, verbose=VERBOSE_MODE)
 
 if P_y_2 is not None:
     print("\n--- KẾT QUẢ (VÍ DỤ 2) ---")
-    print(f"Đa thức nội suy P(y) = {P_y_2}")
-    print(f"Giá trị x* tại y*={y_star} là: x* = {x_star_2}")
+    print("(Hàm đã chạy thành công)")
 print("=" * 40)
 
 
@@ -60,6 +61,7 @@ x_data_3 = [1, 2, 3]
 y_data_3 = [1, 5, 2] # Lỗi: Lên rồi xuống
 y_star_3 = 3
 
+# Hàm sẽ tự in lỗi ở Bước 2
 P_y_3, x_star_3 = inverse_lagrange_polynomial(y_data_3, x_data_3, y_star_3, verbose=VERBOSE_MODE)
 
 if P_y_3 is None:
@@ -75,6 +77,7 @@ x_data_4 = [1, 2, 3]
 y_data_4 = [1, 5, 5] # Lỗi: 5 bị lặp lại
 y_star_4 = 3
 
+# Hàm sẽ tự in lỗi ở Bước 2
 P_y_4, x_star_4 = inverse_lagrange_polynomial(y_data_4, x_data_4, y_star_4, verbose=VERBOSE_MODE)
 
 if P_y_4 is None:

@@ -4,9 +4,10 @@ import sympy
 import os
 try:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
+    # Đảm bảo bạn đang import file "khoanglynghiem.py" đã được chỉnh sửa
     from khoanglynghiem import tim_khoang_cach_ly
 except ImportError:
-    print("LỖI: Không tìm thấy file 'thu_vien_cach_ly_nghiem.py'.")
+    print("LỖI: Không tìm thấy file 'khoanglynghiem.py'.")
     print("     Hãy đảm bảo 2 file nằm chung thư mục.")
     sys.exit(1)
 except ModuleNotFoundError:
@@ -30,18 +31,16 @@ def chay_vi_du_cach_ly():
     print(f"  Y = {Y_num}")
     print(f"  y_bar = {y_bar_num}")
     
-    # Gọi hàm với verbose=True để in các bước
+    # Gọi hàm với verbose=True để in các bước (hàm sẽ tự in kết quả ở Bước 5)
     ket_qua_1 = tim_khoang_cach_ly(X_num, Y_num, y_bar_num, verbose=True)
     
     print("\nKết quả cuối cùng (Trường hợp 1):")
-    print(f"Các khoảng cách ly nghiệm: {ket_qua_1}")
-    print("(Mong đợi: [[0, 1], [2, 3], [3, 4]])")
     
     print("\n" + "=" * 60)
 
     # --- Trường hợp 2: Mảng BIỂU THỨC (X biểu thức, Y là số) ---
     print("\n--- TRƯỜNG HỢP 2: Mảng BIỂU THỨC (X là biểu thức) ---")
-    X_sym = ["a", "a+h", "a+2h", "a+3h"]
+    X_sym = ["a", "a+h", "a+2*h", "a+3*h"]
     Y_sym = [10, -2, 5, 1] # Y vẫn phải là số
     y_bar_sym = 0
     
@@ -54,7 +53,7 @@ def chay_vi_du_cach_ly():
     ket_qua_2 = tim_khoang_cach_ly(X_sym, Y_sym, y_bar_sym, verbose=True)
     
     print("\nKết quả cuối cùng (Trường hợp 2):")
-    print(f"Các khoảng cách ly nghiệm: {ket_qua_2}")
+    # print(f"Các khoảng cách ly nghiệm: {ket_qua_2}") # Đã được in ở Bước 5
     print("(Mong đợi: [['a', 'a+h'], ['a+h', 'a+2h']])")
 
     print("\n" + "=" * 60)
@@ -70,6 +69,7 @@ def chay_vi_du_cach_ly():
     print(f"  Y = {Y_fail}")
     print(f"  y_bar = {y_bar_fail}")
     
+    # Hàm sẽ tự in lỗi ở Bước 2
     ket_qua_3 = tim_khoang_cach_ly(X_fail, Y_fail, y_bar_fail, verbose=True)
     print(f"Kết quả cuối cùng (Trường hợp 3): {ket_qua_3}")
 

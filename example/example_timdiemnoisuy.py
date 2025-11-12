@@ -3,20 +3,20 @@ import os
 import sys
 try:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../code_thuattoan')))
+    # Đảm bảo bạn đang import file "timdiemnoisuy.py" đã được chỉnh sửa
     from timdiemnoisuy import trich_xuat_diem_phu_hop
 except ImportError:
-    print("Lỗi: Không tìm thấy file 'thu_vien_trich_xuat.py'.")
-    print("Hãy đảm bảo 2 file 'thu_vien_trich_xuat.py' và 'example_trich_xuat.py' nằm chung thư mục.")
+    print("Lỗi: Không tìm thấy file 'timdiemnoisuy.py'.")
+    print("Hãy đảm bảo 2 file 'timdiemnoisuy.py' và 'example_timdiemnoisuy.py' nằm chung thư mục.")
     exit()
 
 # === VÍ DỤ SỬ DỤNG ===
-# (Phần code này sẽ chạy khi bạn thực thi file example_trich_xuat.py)
 
 # 1. Tạo một bộ dữ liệu mẫu LỚN (giả sử là bảng tra cứu)
-# Dữ liệu từ 0.0 đến 3.0, bước 0.25
-all_x = [i * 0.25 for i in range(13)] 
-# Dùng hàm y = x^3 + x^2
-all_y = [round(x**3 + x**2, 4) for x in all_x]
+# ... (Dữ liệu all_x và all_y giữ nguyên) ...
+all_x = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6, 6.1, 6.2, 6.3, 6.4, 6.50000000000001, 6.6, 6.7, 6.80000000000001, 6.90000000000001, 7.00000000000001, 7.1, 7.20000000000001, 7.30000000000001, 7.40000000000001, 7.50000000000001, 7.60000000000001, 7.70000000000001, 7.80000000000001, 7.90000000000001, 8.00000000000001, 8.10000000000001, 8.20000000000001, 8.30000000000001, 8.40000000000001, 8.50000000000001, 8.60000000000001, 8.70000000000001, 8.80000000000001, 8.90000000000001, 9.00000000000001, 9.10000000000001, 9.20000000000001, 9.30000000000001, 9.40000000000001, 9.50000000000001, 9.60000000000001, 9.70000000000001, 9.80000000000001, 9.90000000000001, 10, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 11, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 12, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 13, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8, 13.9, 14, 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 15]
+all_y = [1.8834905, 2.0357224, 2.1786048, 2.3117093, 2.4347052, 2.5473627, 2.6495552, 2.7412609, 2.8225627, 2.8936474, 2.9548039, 3.0064203, 3.0489801, 3.0830571, 3.1093101, 3.1284759, 3.1413621, 3.1488393, 3.1518318, 3.1513089, 3.148275, 3.1437596, 3.138807, 3.1344658, 3.1317785, 3.1317713, 3.1354432, 3.1437569, 3.1576283, 3.1779181, 3.2054227, 3.2408665, 3.2848945, 3.3380658, 3.4008486, 3.4736145, 3.5566357, 3.6500818, 3.7540184, 3.8684061, 3.9931011, 4.1278568, 4.2723258, 4.4260637, 4.5885338, 4.7591118, 4.9370925, 5.1216967, 5.3120792, 5.5073368, 5.7065177, 5.908631, 6.1126565, 6.3175546, 6.5222773, 6.7257783, 6.9270234, 7.125001, 7.3187321, 7.5072802, 7.6897605, 7.865349, 8.0332904, 8.1929058, 8.3435996, 8.4848653, 8.6162905, 8.7375613, 8.8484651, 8.948893, 9.0388407, 9.1184087, 9.187801, 9.2473236, 9.2973808, 9.3384717, 9.3711848, 9.3961926, 9.4142442, 9.4261584, 9.4328155, 9.4351481, 9.4341319, 9.4307764, 9.4261142, 9.421191, 9.4170553, 9.4147476, 9.41529, 9.4196762, 9.4288617, 9.4437539, 9.465203, 9.493994, 9.5308383, 9.576367, 9.6311243, 9.6955624, 9.7700364, 9.8548015, 9.9500098, 10.0557094, 10.1718431, 10.2982498, 10.4346657, 10.5807269, 10.7359731, 10.8998525, 11.0717266, 11.2508774, 11.4365141, 11.6277808, 11.8237659, 12.0235101, 12.226017, 12.4302622, 12.6352043, 12.8397945, 13.042988, 13.2437537, 13.4410846, 13.6340084, 13.8215966, 14.002974, 14.1773275, 14.3439142, 14.5020687, 14.6512101, 14.7908474, 14.9205844, 15.040124, 15.1492711, 15.2479343, 15.3361268, 15.4139666, 15.4816753, 15.5395754, 15.5880875, 15.6277262, 15.6590945, 15.6828782]
+
 
 print("=" * 50)
 print("TOÀN BỘ DỮ LIỆU GỐC:")
@@ -25,46 +25,31 @@ print(f"Y = {all_y}")
 print("=" * 50)
 
 # 2. Tình huống 1: Nội suy ở giữa
-# Muốn nội suy tại x = 1.6 (dùng 5 điểm)
 target_1 = 1.6
 points_1 = 5
-
-# Gọi hàm đã import
+print(f"\n--- Tình huống 1: x = {target_1}, k = {points_1} ---")
+# Gọi hàm đã import (Hàm sẽ tự in các bước)
 x1, y1 = trich_xuat_diem_phu_hop(all_x, all_y, target_1, points_1)
-
-if x1: # Kiểm tra xem hàm có trả về kết quả không
-    print(f"\nKết quả cho x = {target_1}:")
-    print(f" 	X đã chọn: {x1}")
-    print(f" 	Y đã chọn: {y1}")
 print("=" * 50)
 
 # 3. Tình huống 2: Nội suy ở gần biên (cận dưới)
-# Muốn nội suy tại x = 0.3 (dùng 5 điểm)
 target_2 = 0.3
 points_2 = 5
-
-# Gọi hàm đã import
+print(f"\n--- Tình huống 2: x = {target_2}, k = {points_2} ---")
+# Gọi hàm đã import (Hàm sẽ tự in các bước)
 x2, y2 = trich_xuat_diem_phu_hop(all_x, all_y, target_2, points_2)
-
-if x2:
-    print(f"\nKết quả cho x = {target_2}:")
-    print(f" 	X đã chọn: {x2}")
-    print(f" 	Y đã chọn: {y2}")
 print("=" * 50)
 
 # 4. Tình huống 3: Nội suy ở gần biên (cận trên)
-# Muốn nội suy tại x = 2.9 (dùng 9 điểm)
 target_3 = 2.9
-points_3 = 9 # Đổi k=9 như trong ví dụ gốc của bạn
-
-# Gọi hàm đã import
+points_3 = 9 
+print(f"\n--- Tình huống 3: x = {target_3}, k = {points_3} ---")
+# Gọi hàm đã import (Hàm sẽ tự in các bước)
 x3, y3 = trich_xuat_diem_phu_hop(all_x, all_y, target_3, points_3)
-
-if x3:
-    print(f"\nKết quả cho x = {target_3}:")
-    print(f" 	X đã chọn: {x3}")
-    print(f" 	Y đã chọn: {y3}")
 print("=" * 50)
+
+
+# 5. Tình huống 4: Dùng mảng BIỂU THỨC (Thành công)
 print("\n" + "=" * 50)
 print("TOÀN BỘ DỮ LIỆU GỐC (BIỂU THỨC):")
 all_x_sym = ["a", "a+1", "a+2", "a+3", "a+4", "a+5"]
@@ -75,27 +60,18 @@ print("=" * 50)
 
 target_4 = "a + 3.8" # Gần "a+4"
 points_4 = 3
+print(f"\n--- Tình huống 4: x = {target_4}, k = {points_4} ---")
 x4, y4 = trich_xuat_diem_phu_hop(all_x_sym, all_y_sym, target_4, points_4)
-# Mong đợi:
-# h = (a+1) - a = 1
-# j' = ((a+3.8) - a) / 1 = 3.8
-# j = round(3.8) = 4
-# start_idx = 4 - (3-1)//2 = 3
-# end_idx = 3 + 3 = 6
-# Sẽ chọn X = ["a+3", "a+4", "a+5"]
 if x4:
-    print(f"\nKết quả cho x = {target_4}:")
-    print(f" 	X đã chọn: {x4}")
-    print(f" 	Y đã chọn: {y4}")
+    print(f"  (Kiểm tra: X mong đợi = ['a+3', 'a+4', 'a+5'])")
 print("=" * 50)
 
 # 6. Tình huống 5: Dùng mảng BIỂU THỨC (Thất bại)
-print("\n--- Tình huống 5: Thử nghiệm thất bại (đúng như mong đợi) ---")
+print(f"\n--- Tình huống 5: x = 'b', k = 3 (Thử nghiệm thất bại) ---")
 target_5 = "b" # Biến không liên quan
 points_5 = 3
 x5, y5 = trich_xuat_diem_phu_hop(all_x_sym, all_y_sym, target_5, points_5)
-# Mong đợi:
-# j' = (b - a) / 1 = b - a (không phải là số)
+# (Hàm sẽ tự in lỗi "j' là biểu thức")
 if x5 is None:
-    print("-> Thất bại như mong đợi vì j' là biểu thức 'b - a'")
+    print("  -> Thất bại như mong đợi.")
 print("=" * 50)
