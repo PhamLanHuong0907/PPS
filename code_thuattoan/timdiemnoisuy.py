@@ -1,149 +1,113 @@
 import math
+import sympy  # Import thư viện symbolic
+import sys    # Dùng để in lỗi
 
-def find_stirling_points(all_x_data, all_y_data, x_target, num_points):
+def trich_xuat_diem_phu_hop(all_x_data_input, all_y_data_input, x_input, k):
     """
-    Tìm các điểm phù hợp (cách đều và ở tâm) để nội suy Stirling
-    từ một bộ dữ liệu lớn đã được sắp xếp.
+    Trích xuất k điểm nội suy phù hợp theo thuật toán trong ảnh.
+    ĐÃ CẬP NHẬT: Có thể xử lý mảng X và x_target là biểu thức (dạng string),
+    miễn là chúng có thể được đơn giản hóa thành các mốc cách đều.
 
-    :param all_x_data: List TOÀN BỘ các mốc x (phải được sắp xếp)
-    :param all_y_data: List TOÀN BỘ các giá trị y
-    :param x_target: Giá trị x mà bạn muốn nội suy (dùng để chọn tâm)
-    :param num_points: Số lượng điểm bạn muốn sử dụng (ví dụ: 5, 7, ...)
-    :return: (selected_x, selected_y) là các list con, hoặc (None, None) nếu thất bại
+    :param all_x_data_input: Mảng X (dạng list các số hoặc string biểu thức)
+    :param all_y_data_input: Mảng Y (dạng list, sẽ được sao chép)
+    :param x_input: Điểm cần tính (số hoặc string biểu thức)
+    :param k: Số lượng điểm cần trích xuất (1 <= k <= n+1)
+    :return: (X_new, Y_new) là các mảng con, hoặc (None, None) nếu thất bại
     """
-    
-    print(f"--- Bắt đầu tìm {num_points} điểm cho x_target = {x_target} ---")
-    
-    n = len(all_x_data)
-    if n != len(all_y_data):
-        print("Lỗi: Dữ liệu x và y không cùng kích thước.")
+
+    # --- Chuyển đổi input sang dạng SymPy để xử lý ---
+    try:
+        all_x_data = [sympy.sympify(val) for val in all_x_data_input]
+        x = sympy.sympify(x_input)
+    except sympy.SympifyError as e:
+        print(f"Lỗi: Input không hợp lệ, không thể chuyển đổi. '{e}'", file=sys.stderr)
         return None, None
         
-    if n < num_points:
-        print(f"Lỗi: Dữ liệu chỉ có {n} điểm, yêu cầu {num_points} điểm.")
+    # --- 1. & 2. Xác định và Kiểm tra input ---
+    n = len(all_x_data) - 1 
+    if n < 0:
+        print("Lỗi: Dữ liệu rỗng.")
+        return None, None
+    if len(all_x_data) != len(all_y_data_input):
+        print(f"Lỗi: Mảng X ({len(all_x_data)}) và Y ({len(all_y_data_input)}) không cùng kích thước.")
+        return None, None
+    if not (k >= 1 and k <= n + 1):
+        print(f"Lỗi: Số điểm k={k} không hợp lệ. Phải là 1 <= k <= {n+1}.")
+        return None, None
+        
+    print(f"--- Bắt đầu trích xuất {k} điểm cho x = {x_input} ---")
+    
+    # --- 4. Thực hiện tính toán (dùng SymPy) ---
+    
+    # Bước 4.1: Tính bước nhảy h (dùng SymPy)
+    if n > 0:
+        h = sympy.simplify(all_x_data[1] - all_x_data[0])
+        
+        # --- BẮT ĐẦU SỬA LỖI ---
+        # Kiểm tra tính cách đều
+        for i in range(2, n + 1):
+            h_i = sympy.simplify(all_x_data[i] - all_x_data[i-1])
+            
+            is_close = False
+            # Nếu cả 2 đều là số, dùng math.isclose để so sánh
+            if h.is_number and h_i.is_number:
+                is_close = math.isclose(float(h), float(h_i), rel_tol=1e-9)
+            # Nếu là biểu thức, dùng so sánh symbolic
+            else:
+                is_close = (sympy.simplify(h_i - h) == 0)
+
+            if not is_close:
+                print(f"Lỗi: Mốc không cách đều. Khoảng h_i={h_i} != h={h}", file=sys.stderr)
+                return None, None
+        # --- KẾT THÚC SỬA LỖI ---
+            
+    else:
+        h = 1
+        
+    # Bước 4.2: Tìm chỉ số j của mốc x_j nằm gần x nhất
+    
+    # * Tính j' = (x - x_0) / h
+    j_prime = sympy.simplify((x - all_x_data[0]) / h)
+    
+    # * KIỂM TRA QUAN TRỌNG: j_prime phải là một SỐ
+    if not j_prime.is_number:
+        print(f"Lỗi: Không thể xác định chỉ số 'j' từ input symbolic.")
+        print(f"   j' = {j_prime} (đây là một biểu thức, không phải là số).")
+        print(f"   Input x={x} hoặc X[0]={all_x_data[0]} quá phức tạp.")
         return None, None
 
-    # --- Bước 1: Tìm chỉ số (index) của mốc x gần x_target nhất ---
-    # (Chúng ta có thể dùng thuật toán tìm kiếm nhị phân, 
-    # nhưng cách đơn giản này cũng hiệu quả với dữ liệu đã sắp xếp)
+    # * Làm tròn j = round(j')
+    # Vì j_prime là số, ta có thể an toàn chuyển sang float và làm tròn
+    j = round(float(j_prime))
     
-    closest_idx = 0
-    min_diff = float('inf')
+    # * Hiệu chỉnh j để đảm bảo j nằm trong [0, n]
+    j = max(0, min(n, j))
+    j = int(j) 
     
-    for i, x_val in enumerate(all_x_data):
-        diff = abs(x_val - x_target)
-        if diff < min_diff:
-            min_diff = diff
-            closest_idx = i
-        else:
-            # Tối ưu: Vì x_data đã sắp xếp, khi khoảng cách bắt đầu tăng
-            # nghĩa là chúng ta đã đi qua điểm gần nhất.
-            break
-            
-    print(f"Thông tin: Mốc x gần nhất trong dữ liệu là x[{closest_idx}] = {all_x_data[closest_idx]}")
+    print(f"Thông tin: j' = {float(j_prime):.4f}. Chỉ số gần nhất j = {j} (tương ứng x[{j}] = {all_x_data_input[j]})")
 
-    # --- Bước 2: Xác định chỉ số bắt đầu (start_idx) ---
-    # Mục tiêu là đặt 'closest_idx' ở giữa của 'num_points'
-    # Chúng ta lùi lại (num_points - 1) // 2 bước
-    start_idx = closest_idx - (num_points - 1) // 2
+    # Bước 4.3: Xác định chỉ số bắt đầu start_idx
+    start_idx = j - (k - 1) // 2
     
-    # --- Bước 3: Xử lý các trường hợp ở biên (quan trọng) ---
+    # Bước 4.4: Hiệu chỉnh start_idx
+    if start_idx < 0:
+        start_idx = 0
+    if start_idx + k - 1 > n:
+        start_idx = n - k + 1
+    start_idx = int(start_idx)
     
-    # 3a. Xử lý cận dưới: Nếu lùi lại mà < 0, ta phải bắt đầu từ 0
-    start_idx = max(0, start_idx)
-    
-    # 3b. Xử lý cận trên: Nếu (start_idx + num_points) vượt quá
-    # chiều dài, ta phải lùi start_idx lại.
-    # Vị trí start_idx cuối cùng có thể là (n - num_points).
-    start_idx = min(start_idx, n - num_points)
-    
-    # Chỉ số kết thúc
-    end_idx = start_idx + num_points
-    
-    print(f"Quyết định: Chọn {num_points} điểm từ chỉ số {start_idx} đến {end_idx - 1}")
+    print(f"Quyết định: Chọn {k} điểm từ chỉ số {start_idx} đến {start_idx + k - 1}")
 
-    # --- Bước 4: Trích xuất dữ liệu và kiểm tra tính cách đều ---
-    selected_x = all_x_data[start_idx:end_idx]
-    selected_y = all_y_data[start_idx:end_idx]
+    # Bước 4.5: Khởi tạo hai mảng mới (kích thước k)
+    X_new = [None] * k 
+    Y_new = [None] * k 
     
-    # Kiểm tra tính cách đều của các điểm VỪA CHỌN
-    if len(selected_x) >= 2:
-        h = selected_x[1] - selected_x[0]
-        for i in range(1, len(selected_x) - 1):
-            # Dùng math.isclose để xử lý sai số dấu phẩy động
-            if not math.isclose(selected_x[i+1] - selected_x[i], h):
-                print(f"CẢNH BÁO: Các mốc x được chọn KHÔNG cách đều!")
-                print(f"  Bước 1: {h}")
-                print(f"  Bước {i+1}: {selected_x[i+1] - selected_x[i]}")
-                print("  Thuật toán Stirling có thể thất bại hoặc không chính xác.")
-                # Vẫn trả về dữ liệu, nhưng kèm cảnh báo
-    
-    print("--- Hoàn tất lựa chọn ---")
-    return selected_x, selected_y
+    # Bước 4.6 & 4.7: Sao chép k điểm
+    # Trả về giá trị GỐC (dạng string/số) thay vì đối tượng SymPy
+    for i in range(k):
+        X_new[i] = all_x_data_input[start_idx + i]
+        Y_new[i] = all_y_data_input[start_idx + i]
 
-# === VÍ DỤ SỬ DỤNG ===
-if __name__ == "__main__":
-    
-    # 1. Tạo một bộ dữ liệu mẫu LỚN (giả sử là bảng tra cứu)
-    # Dữ liệu từ 0.0 đến 3.0, bước 0.25
-    all_x = [i * 0.25 for i in range(13)] 
-    # Dùng hàm y = x^3 + x^2
-    all_y = [round(x**3 + x**2, 4) for x in all_x]
-    
-    print("=" * 50)
-    print("TOÀN BỘ DỮ LIỆU GỐC:")
-    print(f"X = {all_x}")
-    print(f"Y = {all_y}")
-    print("=" * 50)
-
-    # 2. Tình huống 1: Nội suy ở giữa
-    # Muốn nội suy tại x = 1.6 (dùng 5 điểm)
-    target_1 = 1.6
-    points_1 = 5
-    
-    x1, y1 = find_stirling_points(all_x, all_y, target_1, points_1)
-    # Mong đợi:
-    # Gần nhất là x=1.5 (index 6)
-    # start_idx = 6 - (5-1)//2 = 4
-    # end_idx = 4 + 5 = 9
-    # Sẽ chọn x = [1.0, 1.25, 1.5, 1.75, 2.0]
-    print(f"\nKết quả cho x = {target_1}:")
-    print(f"  X đã chọn: {x1}")
-    print(f"  Y đã chọn: {y1}")
-    print("=" * 50)
-    
-    # 3. Tình huống 2: Nội suy ở gần biên (cận dưới)
-    # Muốn nội suy tại x = 0.3 (dùng 5 điểm)
-    target_2 = 0.3
-    points_2 = 5
-    
-    x2, y2 = find_stirling_points(all_x, all_y, target_2, points_2)
-    # Mong đợi:
-    # Gần nhất là x=0.25 (index 1)
-    # start_idx = 1 - (5-1)//2 = -1
-    # Xử lý cận dưới: start_idx = max(0, -1) = 0
-    # Xử lý cận trên: start_idx = min(0, 13-5) = 0
-    # end_idx = 0 + 5 = 5
-    # Sẽ chọn x = [0.0, 0.25, 0.5, 0.75, 1.0]
-    print(f"\nKết quả cho x = {target_2}:")
-    print(f"  X đã chọn: {x2}")
-    print(f"  Y đã chọn: {y2}")
-    print("=" * 50)
-    
-    # 4. Tình huống 3: Nội suy ở gần biên (cận trên)
-    # Muốn nội suy tại x = 2.9 (dùng 5 điểm)
-    target_3 = 2.9
-    points_3 = 9
-    
-    x3, y3 = find_stirling_points(all_x, all_y, target_3, points_3)
-    # Mong đợi:
-    # Gần nhất là x=3.0 (index 12)
-    # start_idx = 12 - (5-1)//2 = 10
-    # Xử lý cận dưới: start_idx = max(0, 10) = 10
-    # Xử lý cận trên: start_idx = min(10, 13-5) = min(10, 8) = 8
-    # end_idx = 8 + 5 = 13
-    # Sẽ chọn x = [2.0, 2.25, 2.5, 2.75, 3.0]
-    print(f"\nKết quả cho x = {target_3}:")
-    print(f"  X đã chọn: {x3}")
-    print(f"  Y đã chọn: {y3}")
-    print("=" * 50)
+    # --- 5. Xác định output ---
+    print("--- Hoàn tất trích xuất ---")
+    return X_new, Y_new
