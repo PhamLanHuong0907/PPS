@@ -10,8 +10,8 @@ from stirling_interpolation import stirling_polynomial # type: ignore
 # (Đây là dữ liệu của P(x) = x^3 - x^2 + 1)
 print("=" * 40)
 print("Ví dụ 1: Dữ liệu số")
-x_1 = [1.0, 1.5, 2.0, 2.5, 3.0]
-y_1 = [1.0, 2.375, 5.0, 9.375, 16.0]
+x_1 = [3.574, 3.691, 3.808, 3.925, 4.042, 4.159, 4.276, 4.393, 4.51]
+y_1 = [6.3054, 6.1283, 5.9039, 5.6358, 5.3284, 4.9864, 4.6151, 4.2201, 3.8074]
 
 # Hàm stirling_polynomial sẽ tự in tất cả các bước và kết quả
 P_1 = stirling_polynomial(x_1, y_1)

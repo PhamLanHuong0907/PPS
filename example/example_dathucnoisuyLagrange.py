@@ -30,8 +30,8 @@ def chay_cac_vi_du():
     # Kết quả mong đợi (cũ): P(x) = x^2 + 2x + 1
     
     # Dữ liệu gốc trong file của bạn:
-    X1 = [0, 1, 2, 3, 6, 7,10]
-    Y1 = [1, 4, 9, 12, 14, 21, 31]
+    X1 = [2.1, 2.2, 2.4, 2.5, 2.7, 2.8]
+    Y1 = [3.178, 3.452, 3.597, 4.132, 4.376, 4.954]
     
     print(f"Các mốc X = {X1}")
     print(f"Các giá trị Y = {Y1}")

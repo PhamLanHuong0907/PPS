@@ -9,8 +9,8 @@ from thuattoanhorner_daoham import horner_k_derivative
 # Tính P(2), P'(2), P''(2) (k=2)
 print("=" * 40)
 print("Ví dụ 1: P(x) = 3x^4 + 0x^3 - 2x^2 + 5x - 1 tại x0 = 2, k = 2")
-coeffs_1 = [3, 0, -2, 5, -1]
-x0_1 = 2
+coeffs_1 = [3.5, -2.78, 5.63, -15.28, 1.54]
+x0_1 = 2.57
 k_1 = 2
 results_1 = horner_k_derivative(coeffs_1, x0_1, k_1)
 print("\nKết quả cuối cùng (Ví dụ 1):")

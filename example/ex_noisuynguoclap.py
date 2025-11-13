@@ -178,10 +178,15 @@ def noi_suy_nguoc_lap(X_input, Y_input, k_start_index, y_bar_input, epsilon, N_m
 # =======================================================================
 if __name__ == '__main__':
 
-    X_values = [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
-    Y_values = [1.0, 1.078125, 0.875, 0.484375, 0.0, -0.484375, -0.875, -1.078125, -1.0]
+    X_values = [3.5,3.6,3.7,3.8,3.9]
+    Y_values = [3.1298225,
+3.1329848,
+3.1408133,
+3.1542291,
+3.1740972
+]
 
-    y_bar_target = -0.7   
+    y_bar_target = 3.15   
     print("="*50)
     print("BÀI TOÁN: GIẢI PHƯƠNG TRÌNH f(x) = y_bar BẰNG PHƯƠNG PHÁP LẶP")
     print("="*50)
